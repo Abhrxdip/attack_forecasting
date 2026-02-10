@@ -155,7 +155,7 @@ This project develops an **intelligent Network Intrusion Detection System (NIDS)
 ### Step 1: Clone the Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Priyanshu-Ku/NIDS-ML.git
 cd "Network Intrusion Detection using ML (NIDS)/NIDS-ML"
 ```
 
