@@ -46,63 +46,56 @@ Given a sequence of multi-scale network state observations $S_{t-W:t} \in \mathb
 ## 🏗️ End-to-End System Architecture
 
 ```mermaid
-flowchart TB
-    subgraph INGESTION["1. Telemetry Ingestion Layer"]
-        D1["CIC-IDS-2017 / 2018 Multi-Stage Datasets\n(PortScan, Patator, Infiltration, WebAttacks, DoS/DDoS)"]
+graph TB
+    subgraph Ingestion["1. Telemetry Ingestion Layer"]
+        D1["CIC-IDS-2017 / 2018 Multi-Stage Datasets<br/>(PortScan, Patator, Infiltration, WebAttacks, DoS/DDoS)"]
         D2["PCAP Raw Packet Captures & NetFlow Records"]
-        D1 --> AGG["NetworkStateAggregator\n(Windowing: 2.0s time slices)"]
+        D1 --> AGG["NetworkStateAggregator<br/>(Windowing: 2.0s time slices)"]
         D2 --> AGG
     end
 
-    subgraph FEATURES["2. Multi-Scale Feature Engineering (30-D Vector)"]
-        AGG --> F1["Flow-Level Aggregates (12 Features)\nSYN/ACK/RST Flags, IAT Stats, Flow Duration, Bytes/Sec"]
-        AGG --> F2["Packet Dynamics (18 Features)\nTTL Session Variance, TCP Window, Port Entropy, Header Overhead"]
+    subgraph Features["2. Multi-Scale Feature Engineering (30-D Vector)"]
+        AGG --> F1["Flow-Level Aggregates (12 Features)<br/>SYN/ACK/RST Flags, IAT Stats, Flow Duration, Bytes/Sec"]
+        AGG --> F2["Packet Dynamics (18 Features)<br/>TTL Session Variance, TCP Window, Port Entropy, Header Overhead"]
         F1 --> SV["Continuous Network State Vector S_t in R^30"]
         F2 --> SV
         SV --> SEQ["Temporal Sliding Sequence Window (S_t-9 ... S_t)"]
     end
 
-    subgraph WORLD_MODEL["3. Causal World Model Engine (PyTorch)"]
+    subgraph WorldModel["3. Causal World Model Engine (PyTorch)"]
         SEQ --> EMB["Input Feature Projection + LayerNorm + GELU"]
         EMB --> LSTM["2-Layer Temporal LSTM Backbone (128 Hidden Units)"]
         LSTM --> ATTN["Multi-Head Temporal Self-Attention Layer (4 Heads)"]
         LSTM --> RES["Residual Fusion: LayerNorm(h_t + Attention_Context)"]
         ATTN --> RES
         
-        RES --> H_STATE["State Dynamics Head\nPredicts S_t+1 in R^30 (Huber Loss)"]
-        RES --> H_MITRE["MITRE ATT&CK Stage Head\n6-Class Kill Chain Logits (Weighted CE)"]
-        RES --> H_RISK["Infiltration Risk Head\nProbability Score [0, 1] (BCE Loss)"]
+        RES --> H_STATE["State Dynamics Head<br/>Predicts S_t+1 in R^30 (Huber Loss)"]
+        RES --> H_MITRE["MITRE ATT&CK Stage Head<br/>6-Class Kill Chain Logits (Weighted CE)"]
+        RES --> H_RISK["Infiltration Risk Head<br/>Probability Score (BCE Loss)"]
     end
 
-    subgraph FORECASTING["4. K-Step Forward Rollout & Campaign Priors"]
-        H_STATE --> ROLLOUT["K-Step Autoregressive Forecaster\nS_t -> S_t+1 -> ... -> S_t+k"]
-        H_MITRE --> MITRE["MITRE ATT&CK Mapper\nRecon -> Access -> Execution -> Lateral -> C2 -> Exfil"]
-        H_RISK --> TRAJ["Future Threat Trajectory Curve\n(T-30m ... NOW ... +30m with 95% Confidence)"]
+    subgraph Forecasting["4. K-Step Forward Rollout & Campaign Priors"]
+        H_STATE --> ROLLOUT["K-Step Autoregressive Forecaster<br/>S_t -> S_t+1 -> ... -> S_t+k"]
+        H_MITRE --> MITRE["MITRE ATT&CK Mapper<br/>Recon -> Access -> Execution -> Lateral -> C2 -> Exfil"]
+        H_RISK --> TRAJ["Future Threat Trajectory Curve<br/>(T-30m ... NOW ... +30m with 95% Confidence)"]
         
-        CAMP["39 Real-World Campaign STIX Playbooks\n(SolarWinds, Conti, NotPetya, FIN13, Black Basta)"] --> MARKOV["Markov Transition Likelihoods & NCISS Severity (0-100)"]
+        CAMP["39 Real-World Campaign STIX Playbooks<br/>(SolarWinds, Conti, NotPetya, FIN13, Black Basta)"] --> MARKOV["Markov Transition Likelihoods & NCISS Severity (0-100)"]
         MITRE --> MARKOV
     end
 
-    subgraph EXPLAINABILITY["5. Explainable AI (XAI) Engine"]
-        ATTN --> ATTN_W["Temporal Attention Saliency Weights\n(Identifies critical trigger windows)"]
-        RES --> SALIENCY["Gradient Saliency & Feature Attribution\n(Ranks top driving features: SYN/ACK, Port 445)"]
+    subgraph Explainability["5. Explainable AI (XAI) Engine"]
+        ATTN --> ATTN_W["Temporal Attention Saliency Weights<br/>(Identifies critical trigger windows)"]
+        RES --> SALIENCY["Gradient Saliency & Feature Attribution<br/>(Ranks top driving features: SYN/ACK, Port 445)"]
     end
 
-    subgraph SERVING["6. Serving & Defense Interface"]
-        ROLLOUT --> API["Native Python REST API (backend/api.py: Port 8000)\nEndpoints: /threat-overview, /forecast, /mitre, /explainability, /scenario"]
+    subgraph Serving["6. Serving & Defense Interface"]
+        ROLLOUT --> API["Native Python REST API (backend/api.py: Port 8000)<br/>Endpoints: /threat-overview, /forecast, /mitre, /explainability, /scenario"]
         MARKOV --> API
         TRAJ --> API
         SALIENCY --> API
         
-        API --> UI["Neo-Brutalist Cyber Forensics Web Dashboard\n(frontend/index.html · Archival Dossier · 10 Index Tabs · 100% Offline)"]
+        API --> UI["Neo-Brutalist Cyber Forensics Web Dashboard<br/>(frontend/index.html · Archival Dossier · 10 Index Tabs · 100% Offline)"]
     end
-
-    style INGESTION fill:#f4efe6,stroke:#1a1a1a,stroke-width:1.5px
-    style FEATURES fill:#ece5d8,stroke:#1a1a1a,stroke-width:1.5px
-    style WORLD_MODEL fill:#fbe8e8,stroke:#a82020,stroke-width:2px
-    style FORECASTING fill:#e8f0fe,stroke:#1a73e8,stroke-width:1.5px
-    style EXPLAINABILITY fill:#fef3e2,stroke:#c85a17,stroke-width:1.5px
-    style SERVING fill:#ffffff,stroke:#1a1a1a,stroke-width:2px
 ```
 
 ---
