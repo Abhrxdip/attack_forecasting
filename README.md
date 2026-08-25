@@ -437,6 +437,40 @@ Imagine your computer network is a **giant magical castle** filled with treasure
 
 ---
 
+### 🏢 Real-World Example: 10 Computers Connected to the Same Network
+
+Imagine an office, school lab, or hospital with **10 computers connected to the same local Wi-Fi / LAN**:
+
+```
+ [PC 1: Reception Desk] ──── [PC 2: Staff PC] ──── [PC 3 to 9: Workstations] ──── [PC 10: Central Database Server]
+       (Infected via USB)             (Probed)                                                (Target Treasure!)
+```
+
+#### 🚨 The Attack Story (How Hackers Move):
+1. **$t = 0\text{s}$ (Patient Zero):** A receptionist on **PC 1** accidentally opens a phishing email or plugs in an infected USB drive.
+2. **$t = 5\text{s}$ (Silent Probing):** The hacker doesn't touch the main server (PC 10) yet. Instead, PC 1 quietly scans PC 2 and PC 3 (checking port 445 SMB).
+3. **$t = 12\text{s}$ (Credential Brute-Force):** The hacker tries common passwords on PC 2 to gain initial access.
+4. **$t = 25\text{s}$ (Lateral Jump):** The hacker plans to jump from PC 2 directly to **PC 10 (The Central Database Server)** to encrypt all student/hospital records with ransomware!
+
+---
+
+#### ❌ What Happens with Old Antivirus / Firewalls:
+- PC 10's antivirus stays silent because nobody has touched PC 10 yet.
+- At $t=25\text{s}$, when the ransomware hits PC 10, the antivirus finally pops up: *"Warning! Database has been encrypted!"*
+- **Result:** Too late. The server is locked, data is stolen, and business halts ($0\text{s}$ advance warning).
+
+---
+
+#### ✅ How Our Causal World Model Saves the Day:
+- At **$t=7\text{s}$**, our World Model spots the temporal sequence: *PC 1 $\to$ sudden SYN flag burst $\to$ Port 445 scan on PC 2*.
+- The AI runs an **internal future simulation**:
+  $$\text{PC 1 (Infected)} \longrightarrow \text{PC 2 (Probing)} \overset{\text{Forecast } P(S_{t+1}|S_t)}{\xrightarrow{\hspace{2cm}}} \text{PC 10 (Server Breach in 18s!)}$$
+- At **$t=8\text{s}$**, the AI alerts defenders and automatically **isolates PC 1 from the network** and locks inbound Port 445 on PC 10.
+- At **$t=25\text{s}$**, when the hacker tries to reach PC 10, **the road is already blocked and PC 1 is quarantined!**
+- **Result:** **PC 2 through PC 10 are 100% safe**, zero data lost, zero downtime! (+18.4s Lead-Time).
+
+---
+
 ### 🌤️ The "Weather Forecast" Analogy:
 > *"Traditional cybersecurity looks at a single raindrop hitting your head and says: 'Hey, it's raining!' (Too late, you're already soaked).*  
 > *Our World Model looks at the clouds, air pressure, and wind speed over the past 20 minutes to forecast a thunderstorm 15 minutes before the first drop hits, giving you time to open the umbrella!"*
