@@ -34,8 +34,8 @@ def main():
             pass
 
     print("=" * 65)
-    print(" 🛡️  AI NETWORK ATTACK FORECASTING — DEFENSE CONSOLE")
-    print("    SIH Problem Statement #26153 (World Models)")
+    print(" [NIDS-ML] AI NETWORK ATTACK FORECASTING - DEFENSE CONSOLE")
+    print("          SIH Problem Statement #26153 (World Models)")
     print("=" * 65)
     print(f"[*] Starting REST API Backend & Serving Frontend on port {port}...")
     

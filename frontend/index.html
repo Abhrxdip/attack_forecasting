@@ -514,7 +514,7 @@
           <div>
             <div class="small-text" style="margin-bottom:6px">FORECAST HORIZON K (steps)</div>
             <input type="range" id="sim-k" min="1" max="10" step="1" value="5" style="width:100%" oninput="updateSim()"/>
-            <div class="small-text" id="sim-k-val">5 steps</div>
+          <div class="small-text" id="sim-k-val">5 steps</div>
           </div>
         </div>
         <div style="margin-top:16px;display:flex;align-items:center;gap:16px">
@@ -528,52 +528,114 @@
     <section class="page" id="page-benchmark">
       <div class="sec-header">
         <div class="sec-num">09 /</div>
-        <div class="sec-title">Benchmark & Evaluation</div>
-        <div class="sec-meta">CIC-IDS-2017 VALIDATION SPLIT</div>
+        <div class="sec-title">Benchmark &amp; Evaluation</div>
+        <div class="sec-meta">CIC-IDS-2017 VALIDATION SPLIT — SOURCE: results/world_model_benchmark.csv</div>
       </div>
+
+      <!-- F1 + Lead Time bars side by side -->
       <div class="grid-2">
         <div class="panel">
-          <div class="panel-label">F1-SCORE EVALUATION</div>
+          <div class="panel-label">F1-SCORE COMPARISON</div>
           <div class="model-label">LOGISTIC REGRESSION (BASELINE)</div>
           <div class="bench-bar-wrap">
-            <div class="bench-bar" style="width:99.86%;background:#666">
+            <div class="bench-bar" style="width:97.81%;background:#666">
               <span class="bench-bar-label">Logistic Regression</span>
             </div>
-            <div class="bench-val">0.9986</div>
+            <div class="bench-val">0.9781</div>
           </div>
           <div class="model-label">RANDOM FOREST (STATIC ML)</div>
           <div class="bench-bar-wrap">
-            <div class="bench-bar" style="width:99.99%;background:#333">
+            <div class="bench-bar" style="width:93.85%;background:#333">
               <span class="bench-bar-label">Random Forest</span>
             </div>
-            <div class="bench-val">0.9999</div>
+            <div class="bench-val">0.9385</div>
           </div>
           <div class="model-label" style="color:var(--red)">CAUSAL WORLD MODEL (OURS)</div>
           <div class="bench-bar-wrap">
-            <div class="bench-bar" style="width:99.98%;background:var(--red)">
+            <div class="bench-bar" style="width:96.01%;background:var(--red)">
               <span class="bench-bar-label">World Model Dynamics</span>
             </div>
-            <div class="bench-val">0.9998</div>
+            <div class="bench-val">0.9601</div>
           </div>
         </div>
 
         <div class="panel">
-          <div class="panel-label">LEAD-TIME COMPARISON</div>
+          <div class="panel-label">LEAD-TIME COMPARISON (ADVANCE WARNING)</div>
           <div class="model-label">LOGISTIC REGRESSION</div>
           <div class="bench-bar-wrap">
-            <div class="bench-val" style="color:var(--gray-m)">0.0s (REACTIVE ONLY)</div>
+            <div class="bench-val" style="color:var(--gray-m)">0.0s — REACTIVE ONLY ❌</div>
           </div>
           <div class="model-label">RANDOM FOREST</div>
           <div class="bench-bar-wrap">
-            <div class="bench-val" style="color:var(--gray-m)">0.0s (REACTIVE ONLY)</div>
+            <div class="bench-val" style="color:var(--gray-m)">0.0s — REACTIVE ONLY ❌</div>
           </div>
           <div class="model-label" style="color:var(--red)">CAUSAL WORLD MODEL</div>
           <div class="bench-bar-wrap">
             <div class="bench-bar" style="width:100%;background:var(--red)">
               <span class="bench-bar-label">World Model</span>
             </div>
-            <div class="bench-val" style="color:var(--cream)">10.0s – 20.0s ADVANCE WARNING</div>
+            <div class="bench-val" style="color:var(--cream)">10.0s – 20.0s ADVANCE WARNING ✅</div>
           </div>
+        </div>
+      </div>
+
+      <!-- Full real metrics table -->
+      <div class="panel mt12">
+        <div class="panel-label">FULL EVALUATION METRICS — results/world_model_benchmark.csv</div>
+        <table class="flow-table mt8">
+          <thead>
+            <tr>
+              <th>MODEL</th>
+              <th>ACCURACY</th>
+              <th>PRECISION</th>
+              <th>RECALL</th>
+              <th>F1-SCORE</th>
+              <th>ROC-AUC</th>
+              <th>FALSE POSITIVE RATE</th>
+              <th>LEAD TIME</th>
+              <th>PARADIGM</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Logistic Regression</td>
+              <td>97.18%</td>
+              <td>98.90%</td>
+              <td>97.18%</td>
+              <td>97.81%</td>
+              <td>99.73%</td>
+              <td>0.98%</td>
+              <td style="color:var(--gray-m)">0.0s ❌</td>
+              <td>Static Flow Classification</td>
+            </tr>
+            <tr>
+              <td>Random Forest</td>
+              <td>90.84%</td>
+              <td>98.40%</td>
+              <td>90.84%</td>
+              <td>93.85%</td>
+              <td>99.81%</td>
+              <td>0.98%</td>
+              <td style="color:var(--gray-m)">0.0s ❌</td>
+              <td>Static Flow Classification</td>
+            </tr>
+            <tr style="color:var(--red);font-weight:700">
+              <td>Causal World Model (OURS)</td>
+              <td>93.94%</td>
+              <td>98.78%</td>
+              <td>93.94%</td>
+              <td>96.01%</td>
+              <td>99.52%</td>
+              <td>1.96%</td>
+              <td style="color:var(--red)">10–20s ✅</td>
+              <td>Causal World Model P(S_t+1|S_t)</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="small-text mt8" style="color:var(--gray-m);line-height:1.8">
+          * All metrics computed on CIC-IDS-2017 held-out validation split (20% stratified).<br/>
+          * Lead Time = advance warning window before attack stage completion. Static classifiers output 0.0s — they classify current state only, no future prediction.<br/>
+          * World Model trades marginal FPR increase (+0.98%) for 10–20s predictive lead time — a net operational gain for proactive defence.
         </div>
       </div>
     </section>
